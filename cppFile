@@ -1,0 +1,409 @@
+/*
+   Author: Kassidi Bukarica
+   Purpose: This lab is a primitive version of an 
+   Indeed.com or Glassdoor.com search engine that allows the user
+   to search for their desired job by either job title or job 
+   skill. Utilizes a selection sort algorithm. 
+    
+   Test Cases: 1. Searching for a job by title. 
+   2. Searching for a job by skill. 
+   3. The user opts to quit. 
+   4. The input file does not exist. 
+   5. Enpty file. 
+
+*/
+
+#include <iostream> 
+#include <iomanip> 
+#include <fstream>
+#include <cstdlib>
+#include <string>
+#include <cctype>
+#include <stdio.h>
+#include <string.h>
+
+
+using namespace std;
+
+
+const int MAX_SKILLS = 10;
+const int MAX_STRING_LENGTH = 256;
+const int MAX_JOBS = 10;
+
+struct Job {
+   char jobTitle[MAX_STRING_LENGTH]; //C string
+   int numSkills;
+   char skills[MAX_SKILLS][ MAX_STRING_LENGTH]; //C string
+   double salary;
+   char company[MAX_STRING_LENGTH]; //C string
+};
+
+
+/*
+*Function: selectionSort
+
+*Parameters: One structure array called j, and one 
+integer n for the number of items being sorted.
+
+*Preconditions: The input file must have successfully opened, and 
+must not have been empty. The jobs, skills, salaries, and company 
+names must have successfully been read in from the input file
+in order to be sorted. 
+
+*Postconditions: The data read in from the input file 
+has been sorted. 
+
+*Returns: Nothing, as it is a void function. 
+*/
+void selectionSort(Job j[], int n);
+
+
+
+
+/*
+*Function: readJobs
+
+*Parameters: An instream reference variable, 
+and a string parameter.
+
+*Preconditions: The user must have entered a valid 
+file name to be opened and read from. 
+
+*Postconditions: The input file has been opened and the 
+data within has been read into a structure array. 
+
+*Returns: The formal parameter sizeOfarray is returned for the 
+size of the array after the file is read in. 
+*/
+int readJobs(ifstream& in, string linePar);
+
+
+/*
+*Function: jobSkillsearch
+
+*Parameters: A structure array j, and an integer
+parameter for the number of jobs read. 
+
+*Preconditions: The user must have entered a valid input file to 
+be opened, the file must have successfully opened, and the 
+data within successfully read into the structure array j. 
+The user must have selected menu option 2 for this function
+to be called. 
+
+*Postconditions: The user has searched for a job by skill
+name, rather than job title. This function does not work, 
+however. 
+
+*Returns: Nothing, as it is a void function. 
+*/
+void jobSkillsearch(Job j[], int numRead);
+
+
+
+/*
+*Function: jobTitlesearch
+
+*Parameters: A structure array j, and an integer
+parameter for the number of jobs read.
+
+*Preconditions: The user must have entered a valid input file to 
+be opened, the file must have successfully opened, and the 
+data within successfully read into the structure array j. 
+The user must have selected menu option 2 for this function
+to be called. 
+
+*Postconditions: The user has searched for a job by skill
+name, rather than job title.
+
+*Returns: Nothing, as it is a void function.
+*/
+void jobTitlesearch(Job j[], int numRead);
+
+/*
+*Function: printJob
+
+*Parameters: An instance of the structure Job, j.
+
+*Preconditions: The user must have entered a valid 
+file name to be opened and read from. The jobTitlesearch
+or jobSkillsearch functions must have matched a job or jobs 
+from the input file to the user's input. 
+
+*Postconditions: The matching job or jobs have been displayed 
+to the user. 
+
+*Returns: Nothing, as it is a void function. 
+*/
+void printJob(Job j);
+
+
+
+int readJobs(ifstream& in, Job j[], int& sizeOfarray)
+{
+
+  char inFile[256];
+  int i = 0; 
+  Job jobInstance;
+
+   cout << "Enter file name: ";
+   cin >> inFile;
+   in.open(inFile);
+
+   if( in.fail() ) //Should I have used if(!in)?
+       {
+             cout << "Input file " << inFile << " does not exist. Please contact the administrator." << endl;
+             cout << "Thank you for using Jobs.com!" << endl;
+             exit(1);
+       
+       }
+
+//This is not working and I had to comment it out. 
+/*
+    if(is_empty(in))
+    {
+       cout << "Input file " << inFile << " is empty. Please contact the administrator." << endl;
+       cout << "Thank you for using Jobs.com!" << endl;
+    }
+*/
+
+
+  //Initial read
+  in.getline(j[i].jobTitle, MAX_STRING_LENGTH);
+
+  while(!in.eof() && i < MAX_JOBS)
+  {
+        
+        in >> j[i].numSkills;
+        in.ignore(200, '\n');
+        
+
+        for(int k = 0; k < j[i].numSkills; k++) 
+        {
+
+          in.getline(j[i].skills[k], MAX_STRING_LENGTH);
+          
+          
+        } 
+
+          in >> j[i].salary;
+          in.ignore(200, '\n');
+          in.getline(j[i].company, MAX_STRING_LENGTH);
+          i++;
+
+          if(i < MAX_JOBS)
+          {
+             in.getline(j[i].jobTitle, MAX_STRING_LENGTH);      
+          }
+
+}
+
+in.close();
+
+sizeOfarray = i;
+
+/*
+//Trying to see what's in the array for testing purposes
+for(int z = 0; z < MAX_SKILLS; z++)
+{
+   cout << j[z].jobTitle << j[z].company << endl; 
+
+}
+*/
+
+return(sizeOfarray);
+
+}
+
+
+
+
+void selectionSort(Job j[], int n)
+{
+   
+   Job temp;
+
+   for(int i = 0; i < n-1; i++)
+   {
+
+      int iMin = i;
+      for(int k = i + 1; k < n; k++)
+      {
+
+         if(strcmp(j[k].jobTitle, j[iMin].jobTitle) < 0)
+         iMin = k;
+
+      }
+
+      temp = j[i];
+      j[i] = j[iMin];
+      j[iMin] = temp;
+
+   }
+
+   
+}
+
+
+void printJob(Job j)
+{
+
+   cout << setw(40) << left << j.jobTitle 
+        << setw(1) << "$" 
+        << setw(7) << right << j.salary
+        << setw(8) << " " 
+        << setw(23) << left << j.company << endl;
+
+}
+
+
+   
+void jobTitlesearch(Job j[], int numRead)
+{
+      char userInput[MAX_STRING_LENGTH]; 
+      char *result;
+      char temp2[MAX_STRING_LENGTH]; 
+
+      cout << "Enter the job title you want to search for: " ;
+      cin >> userInput;
+      
+      //Set each character of the user's input to lowercase
+      for(int q = 0; q < userInput[MAX_STRING_LENGTH-1]; q++)
+      {
+          userInput[q] = tolower(userInput[q]);
+
+
+      }
+
+      for(int z = 0; z < numRead; z++)
+      {
+
+         strcpy(temp2, j[z].jobTitle);
+         
+         for(int t = 0; temp2[t] != '\0'; t++)
+         {
+            temp2[t] = tolower(temp2[t]);
+         }
+         //Compare user input to the array
+         result = strstr(temp2, userInput);
+    
+         if(result != NULL)
+          {
+            
+            printJob(j[z]);
+          }
+      }
+         
+
+   }
+
+
+void jobSkillsearch(Job j[], int numRead)
+{
+char userInput[MAX_STRING_LENGTH]; 
+      char *result;
+      char temp2[MAX_SKILLS]; 
+      numRead = 0;
+      
+
+      cout << "Enter the job skill you want to search for: " ;
+      cin >> userInput;
+      
+      for(int q = 0; q < userInput[MAX_STRING_LENGTH-1]; q++)
+      {
+          userInput[q] = tolower(userInput[q]);
+
+
+      }
+  
+     for(int g = 0; g < MAX_SKILLS; g++)
+     {   
+
+        numRead++;
+        //strcpy(temp2, j[g].skills[MAX_SKILLS]);
+        //The above line crashes the program with a segmentation fault. 
+        //I couldn't figure it out, but I am not deleting the function 
+        //for feedback and my own learning purposes. 
+        
+        for(int h = 0; h < MAX_STRING_LENGTH; h++)
+        {
+
+              for(int t = 0; temp2[t] != '\0'; t++)
+              {
+                  temp2[t] = tolower(temp2[t]);
+
+                  //Another for loop here to set second [] = NULL? 
+                  //There needs to be 2 for loops to read through the
+                  //2D array, +1 more but I can't remember why
+                   
+              }
+                           
+              result = strstr(temp2, userInput);
+
+         if(result != NULL)
+          {
+            printJob(j[MAX_SKILLS]);
+          
+          }
+
+        }
+
+           
+      }
+         
+}
+
+     
+int main()
+{
+
+   Job jobs[MAX_SKILLS];
+   int numRead;
+   char userJobchoice[MAX_STRING_LENGTH];
+
+   ifstream in;
+   string line;
+   char menuChoice;
+   int x = 0;
+   string jobName;
+   int arraySize;
+   
+   numRead = readJobs(in, jobs, arraySize); //assigning the return
+   selectionSort(jobs, numRead);
+
+   cout << "Welcome to the Jobs.com " << endl;
+  
+   do
+   {
+      
+        cout << "1. Search for job by title" << endl;
+        cout << "2. Search for a job by skill" << endl;
+        cout << "3. Quit" << endl;
+
+        cin >> menuChoice;
+
+        switch(menuChoice)
+          {
+                  case '1':
+                  jobTitlesearch(jobs, numRead);
+                  break;
+
+                  case '2':
+                  jobSkillsearch(jobs, numRead);
+               
+                  break;
+
+                  case '3':
+                  cout << "Thank you for using Jobs.com." << endl;
+                  break;
+                  
+
+                  default: 
+                  cout << "Invalid menu choice. " << endl;
+
+          }
+    }while(menuChoice != '3');
+
+
+
+}
+
